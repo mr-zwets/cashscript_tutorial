@@ -1,0 +1,21 @@
+pragma cashscript ^0.6.0;
+
+contract counter(bytes20 pkh, byte counter) {
+    function spend(pubkey pk, sig s) {
+        require(int(counter)>5); // convert byte to int and check inequality
+        require(hash160(pk) == pkh);
+        require(checkSig(s, pk));
+    }
+    function increment(pubkey pk, sig s) { // requirement for covenants
+        require(checkSig(s, pk)); // requirement for covenants
+        int newCount = int(counter)+1;
+        bytes newContract = 0x01 + byte(newCount) + tx.bytecode.split(2)[1];
+        // cut the first two hexadecimals off, adding back push-1byte
+        // followed by the new count value as a byte 
+        int minerFee = 1000; // hardcoded fee
+        bytes8 amount = bytes8(int(bytes(tx.value)) - minerFee);
+        // calculation of output amount
+        bytes32 output = new OutputP2SH(amount, hash160(newContract));
+        require(hash256(output) == tx.hashOutputs);
+    }
+}

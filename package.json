@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@psf/bch-js": "^4.20.26",
+    "cashscript": "^0.6.5"
+  }
+}
